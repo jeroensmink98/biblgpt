@@ -19,8 +19,20 @@
 	// Subscribe to settings store to get current settings
 	$effect(() => {
 		const unsubscribe = settingsStore.subscribe((settings) => {
-			apiKey = settings.apiKey;
-			selectedModel = settings.model;
+			// Assign only when values actually change to avoid effect loops
+			if (apiKey !== settings.apiKey) {
+				apiKey = settings.apiKey;
+			}
+
+			const incomingModel = settings.model;
+			const isIncomingValid = availableModels.some((m) => m.value === incomingModel);
+			if (!selectedModel) {
+				selectedModel = isIncomingValid ? incomingModel : availableModels[0]?.value || '';
+			} else if (isIncomingValid && selectedModel !== incomingModel) {
+				selectedModel = incomingModel;
+			} else if (!isIncomingValid && !availableModels.some((m) => m.value === selectedModel)) {
+				selectedModel = availableModels[0]?.value || '';
+			}
 		});
 		return unsubscribe;
 	});

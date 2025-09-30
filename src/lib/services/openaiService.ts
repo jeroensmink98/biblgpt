@@ -159,7 +159,7 @@ export class OpenAIService {
                             content: prompt
                         }
                     ],
-                    max_tokens: 400,
+                    max_completion_tokens: 400,
                     temperature: 0.1 // Low temperature for consistent formatting
                 },
                 { signal: abortController.signal }

@@ -54,6 +54,14 @@
 			return;
 		}
 
+		// Require a minimum input length to avoid unnecessary API calls
+		if (inputText.trim().length < 30) {
+			openaiService?.cancelInFlight?.();
+			outputText = '';
+			error = 'Please provide at least 30 characters for a reliable conversion.';
+			return;
+		}
+
 		if (!isConfigured) {
 			error = 'Please configure your OpenAI API key in settings first.';
 			return;
