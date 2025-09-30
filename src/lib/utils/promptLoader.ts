@@ -11,8 +11,8 @@ export async function loadPromptTemplate(): Promise<string> {
         return cachedPromptTemplate;
     }
 	if (!browser) {
-		// Server-side fallback
-		return getDefaultPromptTemplate();
+		// Server-side fallback to optimized template
+		return getOptimizedPromptTemplate();
 	}
 
 	try {
@@ -27,8 +27,8 @@ export async function loadPromptTemplate(): Promise<string> {
         return cachedPromptTemplate;
 	} catch (error) {
 		console.error('Error loading prompt template:', error);
-		// Fallback to default template
-        cachedPromptTemplate = getDefaultPromptTemplate();
+		// Fallback to optimized template
+		cachedPromptTemplate = getOptimizedPromptTemplate();
         return cachedPromptTemplate;
 	}
 }
@@ -70,6 +70,63 @@ OUTPUT FORMAT:
 - Ensure all braces are properly matched
 - Use lowercase for field names`;
 }
+
+
+function getOptimizedPromptTemplate(): string {
+	return `
+Developer: You are an expert at converting APA 7th edition references into BibTeX format.
+
+Begin with a concise checklist (3-7 bullets) of what you will do; keep items conceptual, not implementation-level.
+
+Rules:
+- Use only the information present in the input; do not invent or infer missing fields.
+- Leave out any BibTeX fields that cannot be clearly determined from the input.
+- Extract only explicitly provided details.
+
+Conversion Instructions:
+1. For each author, format as "Lastname, Firstname".
+2. Extract the title, omitting any quotation marks.
+3. Identify the correct BibTeX entry type (e.g., article, book, inproceedings, etc.).
+4. Extract available fields: year, pages, DOI, and other provided metadata.
+5. Generate a BibTeX entry with the appropriate type and relevant fields.
+
+After forming the BibTeX entry, validate that all braces are correctly matched and that only fields supported by the input are present. If required information is missing or ambiguous, proceed conservatively and exclude those fields.
+
+BibTeX Entry Types:
+- @article for journal articles
+- @inproceedings for conference papers
+- @book for books
+- @incollection for book chapters
+- @phdthesis for doctoral theses
+- @mastersthesis for master's theses
+- @misc for other cases
+
+Month Formatting:
+- Convert full month names to their 3-letter lowercase abbreviation: jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, dec
+
+Output:
+- Return only the properly formatted BibTeX entry
+- Adhere to BibTeX syntax:
+  - All field names in lowercase
+  - Ensure all braces are matched
+
+Example:
+Input:
+Lee, H. P., Sarkar, A., Tankelevitch, L., Drosos, I., Rintel, S., Banks, R., & Wilson, N. (2025, April). The impact of generative AI on critical thinking: Self-reported reductions in cognitive effort and confidence effects from a survey of knowledge workers. In Proceedings of the 2025 CHI conference on human factors in computing systems (pp. 1-22).
+
+Output:
+@inproceedings{lee2025impact,
+  title={The impact of generative AI on critical thinking: Self-reported reductions in cognitive effort and confidence effects from a survey of knowledge workers},
+  author={Lee, Hao-Ping and Sarkar, Advait and Tankelevitch, Lev and Drosos, Ian and Rintel, Sean and Banks, Richard and Wilson, Nicholas},
+  booktitle={Proceedings of the 2025 CHI conference on human factors in computing systems},
+  pages={1--22},
+  year={2025}
+}
+	`;
+}
+
+
+
 
 // Module-local cache
 let cachedPromptTemplate: string | null = null;
