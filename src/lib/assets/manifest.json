@@ -1,0 +1,9 @@
+{
+	"name": "Biblgpt",
+	"short_name": "biblgpt",
+	"theme_color": "#ff5f1f",
+	"background_color": "#040506",
+	"display": "browser",
+	"scope": "/",
+	"start_url": "/"
+}
