@@ -2,6 +2,9 @@
 
 A small SvelteKit app that converts APA 7 references into BibTeX using an AI model. Paste an APA reference on the left, get BibTeX on the right. Your OpenAI API key is stored locally in the browser and never leaves your device.
 
+
+![image](./app.png)
+
 ### Features
 - **APA → BibTeX conversion** using your own OpenAI API key
 - **Dark theme** with subtle borders
