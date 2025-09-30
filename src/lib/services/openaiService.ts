@@ -266,6 +266,13 @@ export class OpenAIService {
         // Trim whitespace
         cleaned = cleaned.trim();
 
+        // Auto-balance braces: if there are more opening than closing braces, append missing closers
+        const openCount = (cleaned.match(/\{/g) || []).length;
+        const closeCount = (cleaned.match(/\}/g) || []).length;
+        if (openCount > closeCount) {
+            cleaned = cleaned + '}'.repeat(openCount - closeCount);
+        }
+
         return cleaned;
 	}
 

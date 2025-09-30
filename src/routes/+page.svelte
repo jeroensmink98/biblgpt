@@ -5,6 +5,7 @@
 	import SettingsModal from '$lib/components/SettingsModal.svelte';
 	import { settingsStore, availableModels } from '$lib/stores/settings';
 	import { OpenAIService, type ConversionResult } from '$lib/services/openaiService';
+	import { APP_VERSION } from '$lib/version';
 
 	// State management
 	let inputText = $state('');
@@ -13,6 +14,7 @@
 	let error = $state('');
 	let settingsOpen = $state(false);
 	let successMessage = $state('');
+	const appVersion: string = APP_VERSION;
 
 	// Services
 	let openaiService: OpenAIService;
@@ -278,8 +280,8 @@
 		{/if}
 
 		<!-- Footer -->
-        <footer class="mt-12 text-center text-sm text-neutral-400">
-			<p>Powered by OpenAI {currentModel}</p>
+		<footer class="mt-12 text-center text-sm text-neutral-400">
+			<p>Powered by OpenAI {currentModel} • v{appVersion}</p>
 			<p>
 				Made with <span aria-label="love" role="img">❤️</span> by
 				<a

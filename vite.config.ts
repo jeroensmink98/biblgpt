@@ -2,9 +2,13 @@ import devtoolsJson from 'vite-plugin-devtools-json';
 import { defineConfig } from 'vitest/config';
 import { sveltekit } from '@sveltejs/kit/vite';
 import tailwindcss from '@tailwindcss/vite';
+import pkg from './package.json';
 
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit(), devtoolsJson()],
+    define: {
+        __APP_VERSION__: JSON.stringify((pkg as any).version)
+    },
 	test: {
 		expect: { requireAssertions: true },
 		projects: [
