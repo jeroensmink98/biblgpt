@@ -32,10 +32,10 @@
 
 	// Variant classes
 	const variantClasses = {
-		primary: 'bg-blue-600 text-white hover:bg-blue-700',
-		secondary: 'bg-gray-600 text-white hover:bg-gray-700',
-		outline: 'border border-gray-300 bg-white text-gray-900 hover:bg-gray-50',
-		ghost: 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+		primary: 'bg-blue-600 text-white hover:bg-blue-500',
+		secondary: 'bg-neutral-700 text-white hover:bg-neutral-600',
+		outline: 'border border-white/20 bg-transparent text-neutral-100 hover:bg-white/5',
+		ghost: 'text-neutral-300 hover:bg-white/5 hover:text-white'
 	};
 
 	// Size classes

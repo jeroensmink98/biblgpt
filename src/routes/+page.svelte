@@ -124,18 +124,18 @@
 	/>
 </svelte:head>
 
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen">
 	<!-- Header -->
-	<header class="bg-white shadow-sm border-b">
-		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-			<div class="flex justify-between items-center h-16">
-				<div class="flex items-center">
-					<h1 class="text-xl font-bold text-gray-900">BiblGPT</h1>
-					<span class="ml-2 text-sm text-gray-500">APA to BibTeX Converter</span>
-				</div>
-				<div class="flex items-center gap-4">
+    <header class="border-b border-white/10 bg-neutral-900/60 backdrop-blur panel">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-bold text-neutral-100">BiblGPT</h1>
+                    <span class="ml-2 text-sm text-neutral-400">APA to BibTeX Converter</span>
+                </div>
+                <div class="flex items-center gap-4">
 					{#if !isConfigured}
-						<div class="flex items-center gap-2 text-amber-600">
+                        <div class="flex items-center gap-2 text-amber-400">
 							<svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
 								<path
 									fill-rule="evenodd"
@@ -146,7 +146,7 @@
 							<span class="text-sm">API key required</span>
 						</div>
 					{/if}
-					<Button variant="outline" size="sm" onclick={() => (settingsOpen = true)}>
+                    <Button variant="outline" size="sm" onclick={() => (settingsOpen = true)}>
 						<svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path
 								stroke-linecap="round"
@@ -169,12 +169,12 @@
 	</header>
 
 	<!-- Main content -->
-	<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 			<!-- Input section -->
-			<div class="space-y-4">
+            <div class="space-y-4 panel p-4">
 				<div class="flex items-center justify-between">
-					<h2 class="text-lg font-semibold text-gray-900">APA Reference Input</h2>
+                    <h2 class="text-lg font-semibold text-neutral-100">APA Reference Input</h2>
 					<Button variant="outline" size="sm" onclick={clearAll}>Clear All</Button>
 				</div>
 
@@ -186,8 +186,8 @@
 					label="APA Reference"
 				/>
 
-				{#if isConverting}
-					<div class="flex items-center gap-2 text-sm text-gray-600">
+                {#if isConverting}
+                    <div class="flex items-center gap-2 text-sm text-neutral-400">
 						<svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
 							<circle
 								class="opacity-25"
@@ -209,9 +209,9 @@
 			</div>
 
 			<!-- Output section -->
-			<div class="space-y-4">
+            <div class="space-y-4 panel p-4">
 				<div class="flex items-center justify-between">
-					<h2 class="text-lg font-semibold text-gray-900">BibTeX Output</h2>
+                    <h2 class="text-lg font-semibold text-neutral-100">BibTeX Output</h2>
 					{#if outputText}
 						<Button variant="outline" size="sm" onclick={copyToClipboard}>
 							<svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -239,8 +239,8 @@
 		</div>
 
 		<!-- Status messages -->
-		{#if error}
-			<div class="mt-6 p-4 bg-red-50 border border-red-200 rounded-md">
+        {#if error}
+            <div class="mt-6 p-4 border border-red-400/30 bg-red-900/20 rounded-md">
 				<div class="flex items-center gap-2">
 					<svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
 						<path
@@ -254,8 +254,8 @@
 			</div>
 		{/if}
 
-		{#if successMessage}
-			<div class="mt-6 p-4 bg-green-50 border border-green-200 rounded-md">
+        {#if successMessage}
+            <div class="mt-6 p-4 border border-emerald-400/30 bg-emerald-900/20 rounded-md">
 				<div class="flex items-center gap-2">
 					<svg class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
 						<path
@@ -270,13 +270,13 @@
 		{/if}
 
 		<!-- Footer -->
-		<footer class="mt-12 text-center text-sm text-gray-500">
+        <footer class="mt-12 text-center text-sm text-neutral-400">
 			<p>Powered by OpenAI {currentModel}</p>
 			<p>
 				Made with <span aria-label="love" role="img">❤️</span> by
 				<a
 					href="https://github.com/jeroensmink98"
-					class="underline hover:text-gray-700"
+                    class="underline hover:text-neutral-300"
 					target="_blank"
 					rel="noopener noreferrer"
 				>

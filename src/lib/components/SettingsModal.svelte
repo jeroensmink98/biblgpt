@@ -92,13 +92,13 @@
 	<div
 		class="fixed left-[50%] top-[50%] z-50 w-full max-w-md translate-x-[-50%] translate-y-[-50%] p-6"
 	>
-		<div class="relative rounded-lg bg-white shadow-lg">
+		<div class="relative rounded-lg bg-neutral-900/90 border border-white/10 shadow-xl">
 			<!-- Header -->
-			<div class="flex items-center justify-between border-b p-4">
-				<h2 class="text-lg font-semibold text-gray-900">Settings</h2>
+			<div class="flex items-center justify-between border-b border-white/10 p-4">
+				<h2 class="text-lg font-semibold text-neutral-100">Settings</h2>
 				<button
 					onclick={handleClose}
-					class="text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+					class="text-neutral-400 hover:text-neutral-200 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 focus:ring-offset-neutral-950"
 					aria-label="Close modal"
 				>
 					<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -116,10 +116,10 @@
 			<div class="p-6">
 				<div class="space-y-4">
 					<div>
-						<label for="api-key" class="block text-sm font-medium text-gray-700">
+						<label for="api-key" class="block text-sm font-medium text-neutral-200">
 							OpenAI API Key
 						</label>
-						<p class="mt-1 text-sm text-gray-500">
+						<p class="mt-1 text-sm text-neutral-400">
 							Your API key is stored locally and never sent to our servers.
 						</p>
 					</div>
@@ -134,20 +134,20 @@
 					/>
 
 					<div>
-						<label for="model-select" class="block text-sm font-medium text-gray-700">
+						<label for="model-select" class="block text-sm font-medium text-neutral-200">
 							Model
 						</label>
 						<select
 							id="model-select"
 							bind:value={selectedModel}
 							disabled={isValidating}
-							class="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+							class="mt-1 block w-full rounded-md border border-white/15 bg-neutral-950 px-3 py-2 text-sm text-neutral-100 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 focus:ring-offset-neutral-950 disabled:opacity-50 disabled:cursor-not-allowed"
 						>
 							{#each availableModels as model}
 								<option value={model.value}>{model.label}</option>
 							{/each}
 						</select>
-						<p class="mt-1 text-sm text-gray-500">Choose the AI model for BibTeX conversion.</p>
+						<p class="mt-1 text-sm text-neutral-400">Choose the AI model for BibTeX conversion.</p>
 					</div>
 
 					<div class="flex gap-3 pt-4">
