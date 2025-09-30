@@ -254,13 +254,19 @@ export class OpenAIService {
 	 * Clean up BibTeX response from OpenAI
 	 */
 	private cleanBibTeXResponse(response: string): string {
-		// Remove markdown code blocks if present
-		let cleaned = response.replace(/```bibtex\s*/gi, '').replace(/```\s*$/gi, '');
+        // Remove markdown code blocks if present
+        let cleaned = response.replace(/```\s*bibtex\s*/gi, '').replace(/```\s*$/gi, '');
 
-		// Trim whitespace
-		cleaned = cleaned.trim();
+        // If there are leading bullet points or prose, extract the first BibTeX block
+        const bibtexBlockMatch = cleaned.match(/@[a-zA-Z]+\s*\{[\s\S]*?\}\s*$/m);
+        if (bibtexBlockMatch) {
+            cleaned = bibtexBlockMatch[0];
+        }
 
-		return cleaned;
+        // Trim whitespace
+        cleaned = cleaned.trim();
+
+        return cleaned;
 	}
 
 	/**

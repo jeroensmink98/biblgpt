@@ -76,8 +76,6 @@ function getOptimizedPromptTemplate(): string {
 	return `
 Developer: You are an expert at converting APA 7th edition references into BibTeX format.
 
-Begin with a concise checklist (3-7 bullets) of what you will do; keep items conceptual, not implementation-level.
-
 Rules:
 - Use only the information present in the input; do not invent or infer missing fields.
 - Leave out any BibTeX fields that cannot be clearly determined from the input.
@@ -105,7 +103,7 @@ Month Formatting:
 - Convert full month names to their 3-letter lowercase abbreviation: jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, dec
 
 Output:
-- Return only the properly formatted BibTeX entry
+- Return only the properly formatted BibTeX entry, and nothing else
 - Adhere to BibTeX syntax:
   - All field names in lowercase
   - Ensure all braces are matched
