@@ -1,38 +1,28 @@
-# sv
+## BiblGPT
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+A small SvelteKit app that converts APA 7 references into BibTeX using an AI model. Paste an APA reference on the left, get BibTeX on the right. Your OpenAI API key is stored locally in the browser and never leaves your device.
 
-## Creating a project
+### Features
+- **APA → BibTeX conversion** using your own OpenAI API key
+- **Dark theme** with subtle borders
+- **Copy to clipboard** and lightweight UI
 
-If you're seeing this, you've probably already done this step. Congrats!
+### Run locally
+Prerequisites: Node 18+ and `pnpm` (or `npm`/`yarn`).
 
-```sh
-# create a new project in the current directory
-npx sv create
-
-# create a new project in my-app
-npx sv create my-app
+```bash
+pnpm install
+pnpm dev
 ```
 
-## Developing
+Open `http://localhost:5173` in your browser. Click “Settings” in the header, paste your OpenAI API key, choose a model, and save. Then paste an APA reference to convert.
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+### Build and preview
+```bash
+pnpm build
+pnpm preview
 ```
 
-## Building
-
-To create a production version of your app:
-
-```sh
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+### Notes
+- No server secrets required; the API key is saved in local storage via the settings modal.
+- This project uses Svelte 5 and Vite.
