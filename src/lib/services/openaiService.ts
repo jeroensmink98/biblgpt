@@ -150,32 +150,95 @@ export class OpenAIService {
                 }
             }, this.config.timeout);
 
-            const completion = await this.client.chat.completions.create(
-                {
-                    model: this.config.model!,
-                    messages: [
-                        {
-                            role: 'user',
-                            content: prompt
+            const useResponsesApi = (this.config.model || '').startsWith('gpt-5');
+
+            if (useResponsesApi) {
+                const response = await (this.client as any).responses.create(
+                    {
+                        model: this.config.model!,
+                        input: [
+                            {
+                                role: 'user',
+                                content: [
+                                    { type: 'input_text', text: prompt }
+                                ]
+                            }
+                        ],
+                        max_output_tokens: 400
+                    },
+                    { signal: abortController.signal }
+                );
+
+                clearTimeout(timeoutId);
+                this.inflightAbortController = null;
+
+                // Try multiple known shapes
+                let outputText: string = '';
+                const anyResp: any = response as any;
+                if (anyResp?.output_text && typeof anyResp.output_text === 'string') {
+                    outputText = anyResp.output_text;
+                }
+                if (!outputText && Array.isArray(anyResp?.output)) {
+                    for (const item of anyResp.output) {
+                        if (item?.type === 'message' && Array.isArray(item.content)) {
+                            for (const c of item.content) {
+                                const val = c?.text?.value || c?.text;
+                                if (typeof val === 'string') {
+                                    outputText += (outputText ? '\n' : '') + val;
+                                }
+                            }
+                        } else if (item?.type === 'output_text' && typeof item?.text === 'string') {
+                            outputText += (outputText ? '\n' : '') + item.text;
                         }
-                    ],
-                    max_completion_tokens: 400,
-                    temperature: 0.1 // Low temperature for consistent formatting
-                },
-                { signal: abortController.signal }
-            );
+                    }
+                }
 
-            clearTimeout(timeoutId);
-            // Clear controller after completion
-            this.inflightAbortController = null;
+                // Fallback: if still empty, try one last chat completion call
+                if (!outputText) {
+                    const completion = await this.client.chat.completions.create(
+                        {
+                            model: this.config.model!,
+                            messages: [
+                                { role: 'user', content: prompt }
+                            ]
+                        },
+                        { signal: abortController.signal }
+                    );
+                    const content = completion.choices[0]?.message?.content || '';
+                    if (!content) {
+                        throw new Error('No response content received from OpenAI');
+                    }
+                    return this.cleanBibTeXResponse(content);
+                }
 
-			const content = completion.choices[0]?.message?.content;
-			if (!content) {
-				throw new Error('No response content received from OpenAI');
-			}
+                return this.cleanBibTeXResponse(outputText);
+            } else {
+                const completion = await this.client.chat.completions.create(
+                    {
+                        model: this.config.model!,
+                        messages: [
+                            {
+                                role: 'user',
+                                content: prompt
+                            }
+                        ],
+                        max_completion_tokens: 400
+                    },
+                    { signal: abortController.signal }
+                );
 
-			// Clean up the response (remove markdown code blocks if present)
-			return this.cleanBibTeXResponse(content);
+                clearTimeout(timeoutId);
+                // Clear controller after completion
+                this.inflightAbortController = null;
+
+                const content = completion.choices[0]?.message?.content;
+                if (!content) {
+                    throw new Error('No response content received from OpenAI');
+                }
+
+                // Clean up the response (remove markdown code blocks if present)
+                return this.cleanBibTeXResponse(content);
+            }
         } catch (error) {
 			// Retry logic
 			if (attempt < (this.config.maxRetries || 3)) {

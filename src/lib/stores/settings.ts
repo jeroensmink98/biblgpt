@@ -12,7 +12,6 @@ const SETTINGS_KEY = 'biblgpt-settings';
 // Available models
 export const availableModels = [
 	{ value: 'gpt-5-nano', label: 'GPT-5 Nano' },
-	{ value: 'gpt-4.1-mini', label: 'GPT-4.1 Mini' }
 ];
 
 // Default settings
