@@ -40,8 +40,6 @@
 	);
 
 	function handleInput(event: Event) {
-		const target = event.target as HTMLTextAreaElement;
-		value = target.value;
 		oninput?.(event);
 	}
 

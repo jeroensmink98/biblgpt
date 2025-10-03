@@ -1,0 +1,7 @@
+---
+alwaysApply: true
+---
+
+- always use pnpm
+- use pnpm run dev for development
+- you could use pnpm lint to lint the code
