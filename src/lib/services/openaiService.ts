@@ -18,8 +18,8 @@ export interface OpenAIServiceConfig {
 export class OpenAIService {
 	private client: OpenAI | null = null;
 	private config: OpenAIServiceConfig;
-    private resultCache: Map<string, string> = new Map();
-    private inflightAbortController: AbortController | null = null;
+	private resultCache: Map<string, string> = new Map();
+	private inflightAbortController: AbortController | null = null;
 
 	constructor(config: Partial<OpenAIServiceConfig> = {}) {
 		// Get model from settings store if not provided
@@ -82,24 +82,24 @@ export class OpenAIService {
 		}
 
 		try {
-            // Fast path: return cached result if available
-            const cached = this.resultCache.get(apaReference.trim());
-            if (cached) {
-                return { success: true, bibtex: cached };
-            }
+			// Fast path: return cached result if available
+			const cached = this.resultCache.get(apaReference.trim());
+			if (cached) {
+				return { success: true, bibtex: cached };
+			}
 			// Load prompt template
 			const promptTemplate = await loadPromptTemplate();
 
 			// Create the full prompt
 			const fullPrompt = `${promptTemplate}\n\nConvert this APA reference to BibTeX:\n\n${apaReference}`;
-
+			console.log('Full prompt:', fullPrompt);
 			// Make API call with retry logic
 			const bibtexResult = await this.makeAPIRequest(fullPrompt);
 
-            // Cache successful results
-            if (bibtexResult) {
-                this.resultCache.set(apaReference.trim(), bibtexResult);
-            }
+			// Cache successful results
+			if (bibtexResult) {
+				this.resultCache.set(apaReference.trim(), bibtexResult);
+			}
 
 			return {
 				success: true,
@@ -114,132 +114,128 @@ export class OpenAIService {
 		}
 	}
 
-    /**
-     * Cancel any in-flight OpenAI request
-     */
-    public cancelInFlight(): void {
-        if (this.inflightAbortController) {
-            try {
-                this.inflightAbortController.abort();
-            } catch {
-                // ignore
-            }
-            this.inflightAbortController = null;
-        }
-    }
+	/**
+	 * Cancel any in-flight OpenAI request
+	 */
+	public cancelInFlight(): void {
+		if (this.inflightAbortController) {
+			try {
+				this.inflightAbortController.abort();
+			} catch {
+				// ignore
+			}
+			this.inflightAbortController = null;
+		}
+	}
 
 	/**
 	 * Make API request to OpenAI with retry logic
 	 */
-    private async makeAPIRequest(prompt: string, attempt: number = 1): Promise<string> {
+	private async makeAPIRequest(prompt: string, attempt: number = 1): Promise<string> {
 		if (!this.client) {
 			throw new Error('OpenAI client not initialized');
 		}
 
 		try {
-            // Abort any previous request and create a new controller
-            this.cancelInFlight();
-            const abortController = new AbortController();
-            this.inflightAbortController = abortController;
+			// Abort any previous request and create a new controller
+			this.cancelInFlight();
+			const abortController = new AbortController();
+			this.inflightAbortController = abortController;
 
-            const timeoutId = setTimeout(() => {
-                try {
-                    abortController.abort();
-                } catch {
-                    // ignore
-                }
-            }, this.config.timeout);
+			const timeoutId = setTimeout(() => {
+				try {
+					abortController.abort();
+				} catch {
+					// ignore
+				}
+			}, this.config.timeout);
 
-            const useResponsesApi = (this.config.model || '').startsWith('gpt-5');
+			const useResponsesApi = (this.config.model || '').startsWith('gpt-5');
 
-            if (useResponsesApi) {
-                const response = await (this.client as any).responses.create(
-                    {
-                        model: this.config.model!,
-                        input: [
-                            {
-                                role: 'user',
-                                content: [
-                                    { type: 'input_text', text: prompt }
-                                ]
-                            }
-                        ],
-                        max_output_tokens: 400
-                    },
-                    { signal: abortController.signal }
-                );
+			if (useResponsesApi) {
+				const response = await (this.client as any).responses.create(
+					{
+						model: this.config.model!,
+						input: [
+							{
+								role: 'user',
+								content: [{ type: 'input_text', text: prompt }]
+							}
+						],
+						max_output_tokens: 400
+					},
+					{ signal: abortController.signal }
+				);
 
-                clearTimeout(timeoutId);
-                this.inflightAbortController = null;
+				clearTimeout(timeoutId);
+				this.inflightAbortController = null;
 
-                // Try multiple known shapes
-                let outputText: string = '';
-                const anyResp: any = response as any;
-                if (anyResp?.output_text && typeof anyResp.output_text === 'string') {
-                    outputText = anyResp.output_text;
-                }
-                if (!outputText && Array.isArray(anyResp?.output)) {
-                    for (const item of anyResp.output) {
-                        if (item?.type === 'message' && Array.isArray(item.content)) {
-                            for (const c of item.content) {
-                                const val = c?.text?.value || c?.text;
-                                if (typeof val === 'string') {
-                                    outputText += (outputText ? '\n' : '') + val;
-                                }
-                            }
-                        } else if (item?.type === 'output_text' && typeof item?.text === 'string') {
-                            outputText += (outputText ? '\n' : '') + item.text;
-                        }
-                    }
-                }
+				// Try multiple known shapes
+				let outputText: string = '';
+				const anyResp: any = response as any;
+				if (anyResp?.output_text && typeof anyResp.output_text === 'string') {
+					outputText = anyResp.output_text;
+				}
+				if (!outputText && Array.isArray(anyResp?.output)) {
+					for (const item of anyResp.output) {
+						if (item?.type === 'message' && Array.isArray(item.content)) {
+							for (const c of item.content) {
+								const val = c?.text?.value || c?.text;
+								if (typeof val === 'string') {
+									outputText += (outputText ? '\n' : '') + val;
+								}
+							}
+						} else if (item?.type === 'output_text' && typeof item?.text === 'string') {
+							outputText += (outputText ? '\n' : '') + item.text;
+						}
+					}
+				}
 
-                // Fallback: if still empty, try one last chat completion call
-                if (!outputText) {
-                    const completion = await this.client.chat.completions.create(
-                        {
-                            model: this.config.model!,
-                            messages: [
-                                { role: 'user', content: prompt }
-                            ]
-                        },
-                        { signal: abortController.signal }
-                    );
-                    const content = completion.choices[0]?.message?.content || '';
-                    if (!content) {
-                        throw new Error('No response content received from OpenAI');
-                    }
-                    return this.cleanBibTeXResponse(content);
-                }
+				// Fallback: if still empty, try one last chat completion call
+				if (!outputText) {
+					const completion = await this.client.chat.completions.create(
+						{
+							model: this.config.model!,
+							messages: [{ role: 'user', content: prompt }]
+						},
+						{ signal: abortController.signal }
+					);
+					const content = completion.choices[0]?.message?.content || '';
+					if (!content) {
+						throw new Error('No response content received from OpenAI');
+					}
+					return this.cleanBibTeXResponse(content);
+				}
 
-                return this.cleanBibTeXResponse(outputText);
-            } else {
-                const completion = await this.client.chat.completions.create(
-                    {
-                        model: this.config.model!,
-                        messages: [
-                            {
-                                role: 'user',
-                                content: prompt
-                            }
-                        ],
-                        max_completion_tokens: 400
-                    },
-                    { signal: abortController.signal }
-                );
+				return this.cleanBibTeXResponse(outputText);
+			} else {
+				const completion = await this.client.chat.completions.create(
+					{
+						model: this.config.model!,
+						messages: [
+							{
+								role: 'user',
+								content: prompt
+							}
+						],
+						max_completion_tokens: 4000
+					},
+					{ signal: abortController.signal }
+				);
 
-                clearTimeout(timeoutId);
-                // Clear controller after completion
-                this.inflightAbortController = null;
+				clearTimeout(timeoutId);
+				// Clear controller after completion
+				this.inflightAbortController = null;
 
-                const content = completion.choices[0]?.message?.content;
-                if (!content) {
-                    throw new Error('No response content received from OpenAI');
-                }
+				const content = completion.choices[0]?.message?.content;
+				if (!content) {
+					throw new Error('No response content received from OpenAI');
+				}
 
-                // Clean up the response (remove markdown code blocks if present)
-                return this.cleanBibTeXResponse(content);
-            }
-        } catch (error) {
+				// Clean up the response (remove markdown code blocks if present)
+				return this.cleanBibTeXResponse(content);
+			}
+		} catch (error) {
 			// Retry logic
 			if (attempt < (this.config.maxRetries || 3)) {
 				console.warn(`API request failed (attempt ${attempt}), retrying...`, error);
@@ -254,26 +250,26 @@ export class OpenAIService {
 	 * Clean up BibTeX response from OpenAI
 	 */
 	private cleanBibTeXResponse(response: string): string {
-        // Remove markdown code blocks if present
-        let cleaned = response.replace(/```\s*bibtex\s*/gi, '').replace(/```\s*$/gi, '');
+		// Remove markdown code blocks if present
+		let cleaned = response.replace(/```\s*bibtex\s*/gi, '').replace(/```\s*$/gi, '');
 
-        // If there are leading bullet points or prose, extract the first BibTeX block
-        const bibtexBlockMatch = cleaned.match(/@[a-zA-Z]+\s*\{[\s\S]*?\}\s*$/m);
-        if (bibtexBlockMatch) {
-            cleaned = bibtexBlockMatch[0];
-        }
+		// If there are leading bullet points or prose, extract the first BibTeX block
+		const bibtexBlockMatch = cleaned.match(/@[a-zA-Z]+\s*\{[\s\S]*?\}\s*$/m);
+		if (bibtexBlockMatch) {
+			cleaned = bibtexBlockMatch[0];
+		}
 
-        // Trim whitespace
-        cleaned = cleaned.trim();
+		// Trim whitespace
+		cleaned = cleaned.trim();
 
-        // Auto-balance braces: if there are more opening than closing braces, append missing closers
-        const openCount = (cleaned.match(/\{/g) || []).length;
-        const closeCount = (cleaned.match(/\}/g) || []).length;
-        if (openCount > closeCount) {
-            cleaned = cleaned + '}'.repeat(openCount - closeCount);
-        }
+		// Auto-balance braces: if there are more opening than closing braces, append missing closers
+		const openCount = (cleaned.match(/\{/g) || []).length;
+		const closeCount = (cleaned.match(/\}/g) || []).length;
+		if (openCount > closeCount) {
+			cleaned = cleaned + '}'.repeat(openCount - closeCount);
+		}
 
-        return cleaned;
+		return cleaned;
 	}
 
 	/**
